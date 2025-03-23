@@ -13,7 +13,7 @@ services:
   backend:
     build:
       context: ./back/spe-con
-      dockerfile: Dockerfile.pro
+      dockerfile: Dockerfile-pro
     volumes:
       - ./back/spe-con:/rails
     ports:
