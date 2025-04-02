@@ -46,6 +46,7 @@ COPY ./spe-con ./rails
 
 
 
+
 # Final stage for app image
 FROM base
 
