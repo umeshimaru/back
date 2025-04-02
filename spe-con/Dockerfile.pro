@@ -36,13 +36,13 @@ RUN apt-get update -qq && \
 # Install application gems
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
 RUN bundle install && \
-    bundle exec bootsnap precompile --gemfile && \
-    rm -rf /usr/local/bundle/ruby/*/cache /usr/local/bundle/ruby/*/bundler/gems/*/.git
-# Copy application code
+    bundle exec bootsnap precompile app/ lib/ && \
+    rm -rf /usr/local/bundle/ruby/*/cache || true && \
+    rm -rf /usr/local/bundle/ruby/*/bundler/gems/*/.git || true
+
+# アプリケーションコード全体をコピー
 COPY ./spe-con ./rails
 
-# Precompile bootsnap code for faster boot times
-RUN bundle exec bootsnap precompile app/ lib/
 
 
 
