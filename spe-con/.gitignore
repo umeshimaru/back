@@ -32,3 +32,4 @@
 /config/master.key
 localhost.pem
 localhost-key.pem
+/config/credentials/production.key
