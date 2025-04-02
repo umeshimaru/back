@@ -36,9 +36,8 @@ RUN apt-get update -qq && \
 # Install application gems
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
 RUN bundle install && \
-    rm -rf ~/.bundle/ usr/local/bundle/ruby/*/cache usr/local/bundle/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
-
+    bundle exec bootsnap precompile --gemfile && \
+    rm -rf /usr/local/bundle/ruby/*/cache /usr/local/bundle/ruby/*/bundler/gems/*/.git
 # Copy application code
 COPY ./spe-con ./rails
 
