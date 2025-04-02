@@ -39,7 +39,6 @@ RUN bundle install && \
     rm -rf ~/.bundle/ /usr/local/bundle/ruby/*/cache /usr/local/bundle/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-
 # Copy application code
 COPY ./spe-con ./rails
 
