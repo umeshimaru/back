@@ -1,25 +1,18 @@
 # syntax=docker/dockerfile:1
-# check=error=true
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t spe_con .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name spe_con spe_con
-
-# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+# ベースイメージ
 ARG RUBY_VERSION=3.4.1
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
+# 作業ディレクトリ設定
 WORKDIR /rails
 
-# Install base packages
+# 必要なパッケージをインストール
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client build-essential git libpq-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Set production environment
+# 環境変数設定（本番環境用）
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
@@ -35,17 +28,15 @@ RUN apt-get update -qq && \
 
 # Install application gems
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
-RUN bundle install && \
-    bundle exec bootsnap precompile app/ lib/ && \
+RUN bundle config --global frozen false && bundle install && bundle config --global frozen true
+RUN bundle exec bootsnap precompile app/ lib/ && \
     rm -rf /usr/local/bundle/ruby/*/cache || true && \
     rm -rf /usr/local/bundle/ruby/*/bundler/gems/*/.git || true
-
-# アプリケーションコード全体をコピー
+# Copy application code
 COPY ./spe-con ./rails
 
-
-
-
+# Precompile bootsnap code for faster boot times
+RUN bundle exec bootsnap precompile app/ lib/
 
 # Final stage for app image
 FROM base
