@@ -8,9 +8,9 @@ FROM ruby:$RUBY_VERSION-slim AS base
 WORKDIR /rails
 
 # 必要なパッケージをインストール
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
+RUN apt-get update -qq && \	RUN apt-get update -qq && \
+apt-get install --no-install-recommends -y curl libjemalloc2 libvips libyaml-dev nodejs yarn && \	apt-get install --no-install-recommends -y curl libjemalloc2 libvips && \
+rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
 # 環境変数設定（本番環境用）
 ENV RAILS_ENV="production" \
@@ -25,6 +25,8 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
+
+RUN gem install bundler -v '2.6.2'
 
 # GemfileとGemfile.lockをコピーして依存関係をインストール
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
@@ -65,17 +67,3 @@ HEALTHCHECK --interval=15s --timeout=3s --start-period=30s --retries=3 \
 # サーバー起動コマンド（デフォルトはThruster経由）
 EXPOSE 80
 CMD ["./bin/thrust", "./bin/rails", "server"]
-
-# syntax=docker/dockerfile:1
-# check=error=true
-
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t rails8_on_docker .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name rails8_on_docker rails8_on_docker
-
-# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-
-# syntax=docker/dockerfile:1
-# syntax=docker/dockerfile:1
