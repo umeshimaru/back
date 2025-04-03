@@ -73,68 +73,66 @@
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 
 # syntax=docker/dockerfile:1
-
-# ベースイメージ
+# syntax=docker/dockerfile:1
 ARG RUBY_VERSION=3.4.1
-FROM ruby:$RUBY_VERSION-slim AS base
+FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
-# 作業ディレクトリ設定
+# Rails app lives here
 WORKDIR /rails
 
-# 必要なパッケージのみインストール
+# Install base packages
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-    curl \
-    libjemalloc2 \
-    libvips \
-    libpq-dev && \
+    apt-get install --no-install-recommends -y curl libjemalloc2 libvips postgresql-client && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# 環境変数設定（本番環境用）
+# Set production environment
 ENV RAILS_ENV="production" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development test"
+    BUNDLE_WITHOUT="development"
 
-# ビルド用ステージ
+# Throw-away build stage to reduce size of final image
 FROM base AS build
 
-# ビルド用パッケージをインストール
+# Install packages needed to build gems
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y \
-    build-essential \
-    git \
-    pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# GemfileとGemfile.lockをコピーして依存関係をインストール
+# Install application gems
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
-RUN bundle install
+RUN bundle install && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+    bundle exec bootsnap precompile --gemfile
 
-# アプリケーションコード全体をコピー
+# Copy application code
 COPY . .
 
-# アセットプリコンパイル
-RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
+# Precompile bootsnap code for faster boot times
+RUN bundle exec bootsnap precompile app/ lib/
 
-# 最終ステージ（本番用イメージ）
+# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
+RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+
+
+
+
+# Final stage for app image
 FROM base
 
-# ビルド成果物をコピー
+# Copy built artifacts: gems, application
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
-# 必要なディレクトリ作成と権限設定
-RUN mkdir -p tmp log storage && \
-    chown -R nobody:nogroup tmp log storage
+# Run and own only the runtime files as a non-root user for security
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
+    chown -R rails:rails db log storage tmp
+USER 1000:1000
 
-USER nobody:nogroup
+# Entrypoint prepares the database.
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-# Entrypointスクリプト（PIDファイル削除など）
-ENTRYPOINT ["bash", "-c", "rm -f tmp/pids/server.pid && exec \"$@\"", "--"]
-
-# サーバーポート公開
-EXPOSE 3000
-
-# サーバー起動コマンド
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3000"]
+# Start server via Thruster by default, this can be overwritten at runtime
+EXPOSE 80
+CMD ["./bin/thrust", "./bin/rails", "server"]
