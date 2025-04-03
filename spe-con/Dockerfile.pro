@@ -33,10 +33,8 @@ RUN bundle install && rm -rf "${BUNDLE_PATH}"/ruby/*/cache || exit 1
 COPY spe-con/ ./
 
 # Bootsnapによるコード最適化（エラー時停止）
-RUN bundle exec bootsnap precompile app/ lib/ || exit 1
 
-# アセットのプリコンパイル（ダミーキーで実行、エラー時停止）
-RUN SECRET_KEY_BASE=dummy_key ./bin/rails assets:precompile || exit 1
+
 
 # 非rootユーザーで実行するための設定
 RUN groupadd --system --gid 1000 rails && useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && mkdir -p db log storage tmp && chown -R rails:rails db log storage tmp
