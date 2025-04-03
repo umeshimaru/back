@@ -26,11 +26,11 @@ ENV RAILS_ENV="production" \
     BUNDLE_WITHOUT="development:test"
 
 # GemfileとGemfile.lockをコピーして依存関係をインストール
-COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
+COPY back/spe-con/Gemfile back/spe-con/Gemfile.lock ./
 RUN bundle install && rm -rf "${BUNDLE_PATH}"/ruby/*/cache || exit 1
 
 # アプリケーションコードをコピー
-COPY . .
+COPY back/spe-con/ ./
 
 # Bootsnapによるコード最適化（エラー時停止）
 RUN bundle exec bootsnap precompile app/ lib/ || exit 1
