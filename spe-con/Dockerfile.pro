@@ -4,46 +4,54 @@
 ARG RUBY_VERSION=3.4.1
 FROM ruby:$RUBY_VERSION-slim AS base
 
-# 作業ディレクトリ設定
+# Railsアプリケーションの作業ディレクトリ
 WORKDIR /rails
 
 # 必要なパッケージをインストール
-RUN apt-get update -qq && \	RUN apt-get update -qq && \
-apt-get install --no-install-recommends -y curl libjemalloc2 libvips libyaml-dev nodejs yarn && \	apt-get install --no-install-recommends -y curl libjemalloc2 libvips && \
-rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    curl \
+    libjemalloc2 \
+    libvips \
+    libpq-dev \
+    nodejs \
+    yarn && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
-# 環境変数設定（本番環境用）
+# 本番環境用の環境変数を設定
 ENV RAILS_ENV="production" \
+    RAILS_SERVE_STATIC_FILES="true" \
+    RAILS_LOG_TO_STDOUT="true" \
     BUNDLE_DEPLOYMENT="1" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development:test"
 
-# Throw-away build stage to reduce size of final image
+# マルチステージビルド：ビルドステージ
 FROM base AS build
 
 # 必要なビルドツールをインストール
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config && \
+    apt-get install --no-install-recommends -y build-essential git pkg-config && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
+# Bundlerバージョンを指定してインストール
 RUN gem install bundler -v '2.6.2'
 
 # GemfileとGemfile.lockをコピーして依存関係をインストール
 COPY ./spe-con/Gemfile ./spe-con/Gemfile.lock ./
 RUN bundle install && \
-    rm -rf ~/.bundle "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    bundle exec bootsnap precompile --gemfile
+    rm -rf "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git || exit 1
 
 # アプリケーションコードをコピー
-COPY ./spe-con ./
+COPY . .
 
-# Bootsnapによるコード最適化
-RUN bundle exec bootsnap precompile app/ lib/
+# Bootsnapによるコード最適化（エラー時に停止）
+RUN bundle exec bootsnap precompile app/ lib/ || exit 1
 
-# アセットのプリコンパイル（ダミーキーで実行）
-RUN SECRET_KEY_BASE=dummy_key ./bin/rails assets:precompile
+# アセットのプリコンパイル（ダミーキーで実行、エラー時に停止）
+RUN SECRET_KEY_BASE=dummy_key ./bin/rails assets:precompile || exit 1
 
-# Final stage for app image
+# 最終ステージ：実行環境用イメージ
 FROM base
 
 # ビルド成果物（Gemやアプリケーションコード）をコピー
@@ -64,6 +72,6 @@ ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 HEALTHCHECK --interval=15s --timeout=3s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3000/up || exit 1
 
-# サーバー起動コマンド（デフォルトはThruster経由）
-EXPOSE 80
+EXPOSE 3000
+
 CMD ["./bin/thrust", "./bin/rails", "server"]
