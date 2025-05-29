@@ -1,0 +1,80 @@
+ja:
+  errors:
+    format: "%{message}"  # 属性名を付けずメッセージのみ表示
+
+  devise_token_auth:
+    sessions:
+      not_confirmed: "メールアドレスの確認が必要です。"
+      bad_credentials: "メールアドレスまたはパスワードが正しくありません。"
+      not_supported: "この操作はサポートされていません。"
+      user_not_found: "ユーザーが見つかりません。"
+      not_valid: "認証情報が正しくありません。"
+      not_allowed: "この操作は許可されていません。"
+      already_logged_out: "すでにログアウトしています。"
+      sign_out_success: "ログアウトしました。"
+      sign_in_success: "ログインに成功しました。"
+      sign_in_failed: "ログインに失敗しました。"
+    registrations:
+      missing_confirm_success_url: "confirm_success_urlが必要です。"
+      email_already_exists: "このメールアドレスはすでに登録されています。"
+      password_not_match: "パスワードが一致しません。"
+      account_with_uid_destroyed: "このアカウントは削除されています。"
+      account_to_be_confirmed: "アカウントを有効化する必要があります。"
+      sign_up_success: "アカウント登録が完了しました。"
+      sign_up_failed: "アカウント登録に失敗しました。"
+      update_success: "アカウント情報を更新しました。"
+      update_failed: "アカウント情報の更新に失敗しました。"
+      destroy_success: "アカウントを削除しました。"
+      destroy_failed: "アカウントの削除に失敗しました。"
+    passwords:
+      missing_email: "メールアドレスを入力してください。"
+      missing_redirect_url: "redirect_urlが必要です。"
+      not_allowed_redirect_url: "このredirect_urlは許可されていません。"
+      send_paranoid_instructions: "パスワード再設定の案内メールを送信しました。"
+      send_instructions: "パスワード再設定の案内メールを送信しました。"
+      updated: "パスワードが更新されました。"
+      updated_not_active: "パスワードが更新されましたが、アカウントは有効化されていません。"
+      reset_password_failed: "パスワードのリセットに失敗しました。"
+      no_token: "リセット用トークンがありません。"
+      invalid_token: "無効なトークンです。"
+      expired_token: "トークンの有効期限が切れています。"
+    confirmations:
+      already_confirmed: "すでに確認済みです。"
+      send_instructions: "確認メールを送信しました。"
+      confirmed: "メールアドレスが確認されました。"
+      confirmation_failed: "メールアドレスの確認に失敗しました。"
+      no_token: "確認用トークンがありません。"
+      invalid_token: "無効なトークンです。"
+      expired_token: "トークンの有効期限が切れています。"
+    unlocks:
+      send_instructions: "アカウントのロック解除メールを送信しました。"
+      unlocked: "アカウントのロックが解除されました。"
+      unlock_failed: "アカウントのロック解除に失敗しました。"
+      no_token: "ロック解除用トークンがありません。"
+      invalid_token: "無効なトークンです。"
+      expired_token: "トークンの有効期限が切れています。"
+    omniauth:
+      no_resource_found: "認証情報に一致するユーザーが見つかりません。"
+      no_resource_class: "リソースクラスが見つかりません。"
+      missing_credentials: "認証情報が不足しています。"
+      callback_error: "外部認証でエラーが発生しました。"
+      already_authenticated: "すでに認証済みです。"
+    errors:
+      messages:
+        not_found: "リソースが見つかりません。"
+        forbidden: "アクセスが拒否されました。"
+        unauthorized: "認証されていません。"
+        email_already_exists: "このメールアドレスはすでに登録されています。"
+        not_saved:
+          one: "1件のエラーが発生したため%{resource}は保存されませんでした。"
+          other: "%{count}件のエラーが発生したため%{resource}は保存されませんでした。"
+
+  activerecord:
+    errors:
+      models:
+        user:
+          attributes:
+            email:
+              taken: "このメールアドレスはすでに登録されています"
+      messages:
+        taken: "はすでに存在します"
