@@ -28,6 +28,7 @@ Rails.application.configure do
   config.force_ssl = true
   config.hosts << "back-fznr.onrender.com"
   config.hosts << "spe-con.com"
+  config.hosts << "www.spe-con.com"
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
