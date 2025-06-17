@@ -7,7 +7,7 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'https://spe-con.com', 'https://localhost:8080','https://www.spe-con.com'
+    origins 'https://spe-con.com', 'https://localhost:8080','https://back-fznr.onrender.com'
     
     resource "*",
       headers: :any,
