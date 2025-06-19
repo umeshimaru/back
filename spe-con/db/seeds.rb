@@ -10,6 +10,6 @@
 
 Memo.create!(
   [
-{message:"Hello World"}
+{ message: "Hello World" }
 ]
 )

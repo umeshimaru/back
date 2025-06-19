@@ -7,12 +7,11 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'https://spe-con.com', 'https://localhost:8080','https://back-fznr.onrender.com'
-    
+    origins "https://spe-con.com", "https://localhost:8080", "https://back-fznr.onrender.com"
+
     resource "*",
       headers: :any,
-      expose: ['access-token', 'expiry', 'token-type', 'uid', 'client'],
-      methods: [:get, :post, :put, :patch, :delete, :options, :head]
+      expose: [ "access-token", "expiry", "token-type", "uid", "client" ],
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ]
   end
 end
-
