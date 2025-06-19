@@ -1,0 +1,2 @@
+class Grammar < ApplicationRecord
+end

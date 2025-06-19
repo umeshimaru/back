@@ -41,8 +41,8 @@ plugin :solid_queue if ENV["SOLID_QUEUE_IN_PUMA"]
 pidfile ENV["PIDFILE"] if ENV["PIDFILE"]
 
 
-ssl_bind '0.0.0.0', '3000', {
-  key: './localhost-key.pem', 
-  cert: './localhost.pem',
-  verify_mode: 'none'
+ssl_bind "0.0.0.0", "3000", {
+  key: "./localhost-key.pem",
+  cert: "./localhost.pem",
+  verify_mode: "none"
 }

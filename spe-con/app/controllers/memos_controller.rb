@@ -4,7 +4,7 @@ class MemosController < ApplicationController
   # GET /memos
   def index
     @memos = Memo.all
-    
+
     render json: @memos
   end
 
